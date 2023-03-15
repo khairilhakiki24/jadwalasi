@@ -29,22 +29,29 @@
 			$("#feedingsTable").html("");
 		}
 
-		// Print schedule function
-		function printSchedule() {
-			// Open a new window
-			var printWindow = window.open('', '', 'height=500,width=800');
-			// Write the schedule table to the new window
-			printWindow.document.write('<html><head><title>Jadwal Pemberian ASI</title>');
-			printWindow.document.write('<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">');
-			printWindow.document.write('</head><body><div class="container mt-4"><h2>Jadwal Pemberian ASI</h2><table class="table table-striped mt-4"><thead><tr><th>Tanggal</th><th>Waktu</th><th>Sisi yang Diberikan</th></tr></thead><tbody>');
-			for (var i = 0; i < feedings.length; i++) {
-				printWindow.document.write('<tr><td>' + feedings[i].date + '</td><td>' + feedings[i].time + '</td><td>' + feedings[i].side + '</td></tr>');
-			}
-			printWindow.document.write('</tbody></table></div></body></html>');
-			// Close the new window after printing
-			printWindow.print();
-			printWindow.close();
-		}
+		// Download schedule function
+function downloadSchedule() {
+  // Create a blob containing the schedule table
+  var tableHtml = '<html><head><title>Jadwal Pemberian ASI</title>';
+  tableHtml += '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">';
+  tableHtml += '</head><body><div class="container mt-4"><h2>Jadwal Pemberian ASI</h2><table class="table table-striped mt-4"><thead><tr><th>Tanggal</th><th>Waktu</th><th>Sisi yang Diberikan</th></tr></thead><tbody>';
+  for (var i = 0; i < feedings.length; i++) {
+    tableHtml += '<tr><td>' + feedings[i].date + '</td><td>' + feedings[i].time + '</td><td>' + feedings[i].side + '</td></tr>';
+  }
+  tableHtml += '</tbody></table></div></body></html>';
+  var tableBlob = new Blob([tableHtml], { type: 'application/pdf' }); // Change the MIME type to pdf
+
+  // Create a download link for the blob
+  var downloadLink = document.createElement('a');
+  downloadLink.href = URL.createObjectURL(tableBlob);
+  downloadLink.download = 'Jadwal_Pemberian_ASI.pdf'; // Change the filename to .pdf
+
+  // Open the pdf in new tab instead of downloading it
+  downloadLink.target = '_blank';
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+}
+
 	</script>
 </head>
 <body>
@@ -72,7 +79,7 @@
 		</div>
 		<button class="btn btn-primary" onclick="addFeeding()">Tambah</button>
 		<button class="btn btn-danger" onclick="clearFeedings()">Hapus Semua</button>
-		<button class="btn btn-success" onclick="printSchedule()">Cetak Jadwal</button>
+		<button class="btn btn-success" onclick="downloadSchedule()">Unduh Jadwal</button>
 		<table class="table table-striped mt-4">
 			<thead>
 				<tr>
