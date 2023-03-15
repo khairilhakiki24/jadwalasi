@@ -6,8 +6,9 @@
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 	<!-- Load jQuery -->
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<!-- Load Bootstrap JS -->
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	<!-- Load jsPDF -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.debug.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 	<script>
 		var feedings = [];
 
@@ -29,29 +30,29 @@
 			$("#feedingsTable").html("");
 		}
 
-		// Download schedule function
-function downloadSchedule() {
-  // Create a blob containing the schedule table
-  var tableHtml = '<html><head><title>Jadwal Pemberian ASI</title>';
-  tableHtml += '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">';
-  tableHtml += '</head><body><div class="container mt-4"><h2>Jadwal Pemberian ASI</h2><table class="table table-striped mt-4"><thead><tr><th>Tanggal</th><th>Waktu</th><th>Sisi yang Diberikan</th></tr></thead><tbody>';
-  for (var i = 0; i < feedings.length; i++) {
-    tableHtml += '<tr><td>' + feedings[i].date + '</td><td>' + feedings[i].time + '</td><td>' + feedings[i].side + '</td></tr>';
-  }
-  tableHtml += '</tbody></table></div></body></html>';
-  var tableBlob = new Blob([tableHtml], { type: 'application/pdf' }); // Change the MIME type to pdf
+		function downloadSchedule() {
+			// Create a new jsPDF instance
+			var doc = new jsPDF();
 
-  // Create a download link for the blob
-  var downloadLink = document.createElement('a');
-  downloadLink.href = URL.createObjectURL(tableBlob);
-  downloadLink.download = 'Jadwal_Pemberian_ASI.pdf'; // Change the filename to .pdf
+			// Add content to the PDF
+			doc.setFontSize(18);
+			doc.text("Jadwal Pemberian ASI", 10, 20);
 
-  // Open the pdf in new tab instead of downloading it
-  downloadLink.target = '_blank';
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-}
+			// Add table to the PDF
+			var headers = [["Tanggal", "Waktu", "Sisi yang Diberikan"]];
+			var data = [];
+			for (var i = 0; i < feedings.length; i++) {
+				data.push([feedings[i].date, feedings[i].time, feedings[i].side]);
+			}
+			doc.autoTable({
+				head: headers,
+				body: data,
+				startY: 30
+			});
 
+			// Save the PDF
+			doc.save("Jadwal_Pemberian_ASI.pdf");
+		}
 	</script>
 </head>
 <body>
@@ -70,27 +71,29 @@ function downloadSchedule() {
 			<label>Sisi yang diberikan:</label>
 			<div class="form-check">
 				<input type="radio" name="side" id="left" value="Kiri" class="form-check-input">
-				<label for="left">Kiri</label>
-			</div>
-			<div class="form-check">
-				<input type="radio" name="side" id="right" value="Kanan" class="form-check-input">
-				<label for="right">Kanan</label>
-			</div>
-		</div>
-		<button class="btn btn-primary" onclick="addFeeding()">Tambah</button>
-		<button class="btn btn-danger" onclick="clearFeedings()">Hapus Semua</button>
-		<button class="btn btn-success" onclick="downloadSchedule()">Unduh Jadwal</button>
-		<table class="table table-striped mt-4">
-			<thead>
-				<tr>
-					<th>Tanggal</th>
-					<th>Waktu</th>
-					<th>Sisi yang Diberikan</th>
-				</tr>
-			</thead>
-			<tbody id="feedingsTable">
-			</tbody>
-		</table>
-	</div>
+<label for="left" class="form-check-label">Kiri</label>
+</div>
+<div class="form-check">
+<input type="radio" name="side" id="right" value="Kanan" class="form-check-input">
+<label for="right" class="form-check-label">Kanan</label>
+</div>
+</div>
+<button class="btn btn-primary" onclick="addFeeding()">Tambahkan</button>
+<button class="btn btn-danger" onclick="clearFeedings()">Bersihkan</button>
+<hr>
+<h2>Jadwal Pemberian ASI</h2>
+<table class="table">
+<thead>
+<tr>
+<th>Tanggal</th>
+<th>Waktu</th>
+<th>Sisi yang Diberikan</th>
+</tr>
+</thead>
+<tbody id="feedingsTable">
+		</tbody>
+	</table>
+	<button class="btn btn-success" onclick="downloadSchedule()">Unduh Jadwal</button>
+</div>
 </body>
 </html>
